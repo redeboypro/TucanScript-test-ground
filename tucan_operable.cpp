@@ -12,15 +12,6 @@ namespace tucan_script
 		setType(type);
 	}
 
-	tucan_operable::~tucan_operable()
-	{
-		m_arrayValues.clear();
-		m_stringValue = std::string();
-		m_intValue = 0;
-		m_floatValue = 0.0;
-		m_boolValue = false;
-	}
-
 	size_t tucan_operable::length() const
 	{
 		return m_arrayValues.size();
@@ -371,7 +362,7 @@ namespace tucan_script
 		disjunction(rValue.toBoolean());
 	}
 
-	std::shared_ptr<tucan_operable> tucan_operable::operator[](const size_t& index)
+	std::shared_ptr<tucan_operable> &tucan_operable::operator[](const size_t& index)
 	{
 		return m_arrayValues[index];
 	}
@@ -505,11 +496,11 @@ namespace tucan_script
 		m_arrayValues.clear();
 	}
 
-	tucan_operable_clone::tucan_operable_clone(std::shared_ptr<tucan_operable> source) : m_source(std::shared_ptr<tucan_operable>(source)) {}
+	tucan_operable_clone::tucan_operable_clone(std::shared_ptr<tucan_operable> source) : m_source(source) {}
 
-	void tucan_operable_clone::setSource(std::shared_ptr<tucan_operable> source)
+	void tucan_operable_clone::setSource(std::shared_ptr<tucan_operable>& source)
 	{
-		m_source = std::shared_ptr<tucan_operable>(source);
+		m_source = source;
 	}
 
 	void tucan_operable_clone::reset()

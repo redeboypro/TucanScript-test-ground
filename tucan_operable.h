@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <iostream>
 #include <sstream>
 #include <concepts>
@@ -22,7 +21,7 @@ namespace tucan_script
 	public:
 		tucan_operable();
 		tucan_operable(const TUCAN_TYPE& type);
-		~tucan_operable();
+		~tucan_operable() = default;
 
 		size_t length() const;
 
@@ -83,7 +82,7 @@ namespace tucan_script
 		void disjunction(bool rValue);
 		void disjunction(const tucan_operable& rValue);
 
-		std::shared_ptr<tucan_operable> operator[](const size_t& index);
+		std::shared_ptr<tucan_operable> &operator[](const size_t& index);
 		void setElement(const size_t& index, const tucan_operable& value);
 
 		std::string toString() const;
@@ -116,10 +115,8 @@ namespace tucan_script
 	public:
 		tucan_operable_clone(std::shared_ptr<tucan_operable> source);
 
-		void setSource(std::shared_ptr<tucan_operable> source);
-
+		void setSource(std::shared_ptr<tucan_operable>& source);
 		void reset();
-
 		void apply();
 	};
 }

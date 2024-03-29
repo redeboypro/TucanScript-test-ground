@@ -6,8 +6,6 @@ namespace tucan_script
 
 	tucan_entity::tucan_entity(const TUCAN_TYPE& type) : m_type(type) {}
 
-	tucan_entity::~tucan_entity() {}
-
 	TUCAN_TYPE tucan_entity::getType() const
 	{
 		return m_type;
@@ -19,11 +17,6 @@ namespace tucan_script
 	}
 
 	tucan_undefined::tucan_undefined(const std::string& content) : m_content(content) {}
-
-	tucan_undefined::~tucan_undefined()
-	{
-		m_content = std::string();
-	}
 
 	tucan_break_point::tucan_break_point(std::shared_ptr<tucan_loop> loop) : m_loop(loop) {}
 	
@@ -44,5 +37,16 @@ namespace tucan_script
 	void tucan_return_point::execute()
 	{
 		m_returnable->return_value();
+	}
+
+	void tucan_statement::reset()
+	{
+		for (auto& executable : executables)
+			executable->reset();
+	}
+
+	void tucan_statement::append(std::shared_ptr<tucan_executable> executable)
+	{
+		executables.push_back(executable);
 	}
 }

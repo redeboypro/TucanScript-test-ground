@@ -123,6 +123,15 @@ namespace tucan_script
 		void execute() override;
 	};
 
+	class tucan_statement : public tucan_executable, public tucan_executable_container
+	{
+	public:
+		void reset() override;
+		void append(std::shared_ptr<tucan_executable> executable);
+
+		virtual void execute() override = 0;
+	};
+
 	class tucan_entity
 	{
 	private:
@@ -131,7 +140,7 @@ namespace tucan_script
 	public:
 		tucan_entity();
 		tucan_entity(const TUCAN_TYPE& type);
-		virtual ~tucan_entity();
+		virtual ~tucan_entity() = default;
 
 		TUCAN_TYPE getType() const;
 
@@ -146,6 +155,6 @@ namespace tucan_script
 
 	public:
 		tucan_undefined(const std::string& content);
-		~tucan_undefined();
+		~tucan_undefined() = default;
 	};
 }

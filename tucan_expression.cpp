@@ -2,7 +2,7 @@
 
 namespace tucan_script
 {
-	int tucan_script::tucan_expression::precedence(const TUCAN_TYPE& type)
+	int tucan_expression::precedence(const TUCAN_TYPE& type)
 	{
 		switch (type)
 		{
@@ -29,17 +29,17 @@ namespace tucan_script
 
 	tucan_expression::tucan_expression() {}
 
-	void tucan_script::tucan_expression::appendOperable(std::shared_ptr<tucan_operable> token)
+	void tucan_expression::appendOperable(std::shared_ptr<tucan_operable> token)
 	{
 		m_tokens.push_back(std::make_shared<tucan_operable_clone>(token));
 	}
 
-	void tucan_script::tucan_expression::append(std::shared_ptr<tucan_entity> token)
+	void tucan_expression::append(std::shared_ptr<tucan_entity> token)
 	{
 		m_tokens.push_back(token);
 	}
 
-	void tucan_script::tucan_expression::execute()
+	void tucan_expression::execute()
 	{
 		reset();
 
@@ -226,10 +226,10 @@ namespace tucan_script
 		valueStack.pop();
 	}
 
-	void tucan_script::tucan_expression::reset()
+	void tucan_expression::reset()
 	{
 		for (auto& token : m_tokens)
-			if (auto resetable = dynamic_cast<tucan_script::tucan_resetable*>(token.get()))
+			if (auto resetable = dynamic_cast<tucan_resetable*>(token.get()))
 				resetable->reset();
 	}
 }
