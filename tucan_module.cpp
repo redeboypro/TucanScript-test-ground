@@ -4,9 +4,9 @@ namespace tucan_script
 {
 	void tucan_module::process_container(
 		std::vector<std::shared_ptr<tucan_entity>>& tokens,
-		tucan_executable_container* container,
-		tucan_returnable* lastReturnable,
-		tucan_loop* lastLoop)
+		std::shared_ptr<tucan_executable_container> container,
+		std::shared_ptr<tucan_returnable> lastReturnable,
+		std::shared_ptr<tucan_loop> lastLoop)
 	{
 		auto& in_executables = container->executables;
 
@@ -50,7 +50,7 @@ namespace tucan_script
 				sub_skip_token();
 				auto& functionStored = m_functions[sub_get_undefined()];
 				auto functionInternalTokens = collect_internal_tokens(tokens, index + 1, index);
-				process_container(functionInternalTokens, functionStored.get(), functionStored.get(), lastLoop);
+				process_container(functionInternalTokens, functionStored, functionStored, lastLoop);
 				break;
 			}
 			case TUCAN_TYPE::IF:
@@ -63,7 +63,7 @@ namespace tucan_script
 					auto conditionInstance = std::make_shared<tucan_statement_if>(condition);
 
 					auto statementContainer = std::dynamic_pointer_cast<tucan_executable_container>(conditionInstance);
-					process_container(statementInternalTokens, statementContainer.get(), lastReturnable, lastLoop);
+					process_container(statementInternalTokens, statementContainer, lastReturnable, lastLoop);
 
 					in_executables.push_back(conditionInstance);
 					break;
@@ -72,7 +72,7 @@ namespace tucan_script
 				auto loopInstance = std::make_shared<tucan_statement_while>(condition);
 				auto statementContainer = std::dynamic_pointer_cast<tucan_executable_container>(loopInstance);
 
-				process_container(statementInternalTokens, statementContainer.get(), lastReturnable, loopInstance.get());
+				process_container(statementInternalTokens, statementContainer, lastReturnable, loopInstance);
 				in_executables.push_back(loopInstance);
 				break;
 			}
@@ -95,7 +95,7 @@ namespace tucan_script
 				auto loopInstance = std::make_shared<tucan_statement_for>(variables, array);
 				auto statementContainer = std::dynamic_pointer_cast<tucan_executable_container>(loopInstance);
 
-				process_container(statementInternalTokens, statementContainer.get(), lastReturnable, loopInstance.get());
+				process_container(statementInternalTokens, statementContainer, lastReturnable, loopInstance);
 				in_executables.push_back(loopInstance);
 				break;
 			}
@@ -156,7 +156,7 @@ namespace tucan_script
 	}
 
 	std::shared_ptr<tucan_expression> tucan_module::process_expression(
-		tucan_executable_container* parent, 
+		std::shared_ptr<tucan_executable_container> parent,
 		std::vector<std::shared_ptr<tucan_entity>>& tokens,
 		size_t index,
 		size_t& out_index)
@@ -180,7 +180,7 @@ namespace tucan_script
 				{
 					index += 2;
 					if (auto function = tryGetFunction(rawContent))
-						expression->append(process_function_call(parent, function.get(), tokens, index));
+						expression->append(process_function_call(parent, function, tokens, index));
 					else
 						std::cerr << "Function " + rawContent + " not defined" << std::endl;
 
@@ -201,9 +201,9 @@ namespace tucan_script
 
 	std::shared_ptr<tucan_operable> tucan_module::process_variable(
 		const std::string& name,
-		tucan_executable_container* parent)
+		std::shared_ptr<tucan_executable_container> parent)
 	{
-		if (auto parentFunction = dynamic_cast<tucan_function*>(parent))
+		if (auto parentFunction = std::dynamic_pointer_cast<tucan_function>(parent))
 			if (auto localVariable = parentFunction->getArgByName(name))
 				return std::shared_ptr<tucan_operable>(localVariable);
 
@@ -219,8 +219,8 @@ namespace tucan_script
 	}
 
 	std::shared_ptr<tucan_function_call> tucan_module::process_function_call(
-		tucan_executable_container* parent,
-		tucan_function* function,
+		std::shared_ptr<tucan_executable_container> parent,
+		std::shared_ptr<tucan_function>& function,
 		std::vector<std::shared_ptr<tucan_entity>>& tokens,
 		size_t& index)
 	{
@@ -230,28 +230,32 @@ namespace tucan_script
 		size_t placeHolder;
 		auto sub_proc_internal_expr = [&](size_t& localIndex)
 			{
-				if (argTokenBuffer.size() > 0)
+				if (argTokenBuffer.size() > 1) {
 					functionCall->append(process_expression(
-						dynamic_cast<tucan_executable_container*>(function),
+						std::dynamic_pointer_cast<tucan_executable_container>(function),
 						argTokenBuffer, 0, placeHolder));
+				}
 				else if (argTokenBuffer.size() == 1)
 				{
 					auto& singleToken = argTokenBuffer[0];
+
 					if (auto undefinedToken = std::dynamic_pointer_cast<tucan_undefined>(singleToken))
 					{
 						std::string rawContent = undefinedToken->getContent();
 						auto variable = tryGetVariable(rawContent);
 						if (!variable)
 						{
-							if (auto parentFunction = dynamic_cast<tucan_function*>(parent))
+							if (auto parentFunction = std::dynamic_pointer_cast<tucan_function>(parent))
 							{
-								functionCall->append(std::shared_ptr<tucan_operable>(parentFunction->getArgByName(rawContent)));
+								std::cout << rawContent << std::endl;
+								functionCall->append(parentFunction->getArgByName(rawContent));
 								goto end;
 							}
 							else
 								std::cerr << "Unexpected argument " + rawContent << std::endl;
 						}
 
+						
 						functionCall->append(variable);
 					}
 					else if (auto operableToken = std::dynamic_pointer_cast<tucan_operable>(singleToken))
@@ -299,10 +303,94 @@ namespace tucan_script
 		return functionCall;
 	}
 
+	tucan_module::tucan_module() : m_running(false)
+	{
+		auto sub_del_fun = [&](const std::string& name, const std::function<void(tucan_function&)>& del)
+			{
+				auto function = std::make_shared<tucan_function>();
+
+				auto executable = std::make_shared<tucan_external_executable>(function);
+				executable->del_action = del;
+
+				function->append(executable);
+
+				setFunction(name, function);
+			};
+
+		sub_del_fun("print", [](tucan_function& function) 
+			{
+				for (size_t index = 0; index < function.involvedArgumentCount; index++)
+					std::cout << function.getArgById(index)->toString();
+			});
+
+		sub_del_fun("println", [](tucan_function& function)
+			{
+				for (size_t index = 0; index < function.involvedArgumentCount; index++)
+					std::cout << function.getArgById(index)->toString() << std::endl;
+			});
+
+		sub_del_fun("input", [](tucan_function& function)
+			{
+				std::string inputString;
+
+				for (size_t index = 0; index < function.involvedArgumentCount; index++)
+					std::cout << function.getArgById(index)->toString();
+
+				std::cin >> inputString;
+				function.set(inputString);
+			});
+
+		sub_del_fun("string", [](tucan_function& function)
+			{
+				function.set(function.getArgById(0)->toString());
+			});
+
+		sub_del_fun("int", [](tucan_function& function)
+			{
+				function.set(function.getArgById(0)->toInt());
+			});
+
+		sub_del_fun("float", [](tucan_function& function)
+			{
+				function.set(function.getArgById(0)->toFloat());
+			});
+
+		sub_del_fun("bool", [](tucan_function& function)
+			{
+				function.set(function.getArgById(0)->toBoolean());
+			});
+
+		sub_del_fun("vector", [](tucan_function& function)
+			{
+				for (size_t index = 0; index < function.involvedArgumentCount; index++)
+					function.setElement(index, *function.getArgById(index));
+			});
+
+		sub_del_fun("get", [](tucan_function& function)
+			{
+				auto vector = function.getArgById(0);
+				auto index = function.getArgById(1);
+				function.set(vector->getElement(index->toInt()));
+			});
+
+		m_functions["get"]->append("in_vector", true);
+
+		sub_del_fun("set", [](tucan_function& function)
+			{
+				auto vector = function.getArgById(0);
+				auto index = function.getArgById(1);
+				auto value = function.getArgById(2);
+				vector->setElement(index->toInt(), *value);
+			});
+
+		m_functions["set"]->append("in_vector", true);
+	}
+
 	void tucan_module::load_from_source(const std::string& src)
 	{
 		auto rawTokens = tokenize(src);
-		process_container(rawTokens, this, this, nullptr);
+		auto this_as_shared = shared_from_this();
+		process_container(rawTokens, this_as_shared, this_as_shared, nullptr);
 	}
 
 	std::shared_ptr<tucan_operable> tucan_module::tryGetVariable(const std::string& name)

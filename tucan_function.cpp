@@ -41,7 +41,7 @@ namespace tucan_script
 		arg->reset();
 	}
 
-	void tucan_function::append(std::shared_ptr<tucan_executable> &executable)
+	void tucan_function::append(std::shared_ptr<tucan_executable> executable)
 	{
 		executables.push_back(executable);
 	}
@@ -118,5 +118,17 @@ namespace tucan_script
 		m_result->set(*m_function);
 
 		return m_result;
+	}
+
+	tucan_external_executable::tucan_external_executable(std::shared_ptr<tucan_function>& function) : m_function(function) {}
+
+	void tucan_external_executable::execute()
+	{
+		del_action(*m_function);
+	}
+
+	void tucan_external_executable::reset()
+	{
+		std::cerr << "Cannot be reset" << std::endl;
 	}
 }

@@ -27,8 +27,8 @@ namespace tucan_script
 		{ "or", TUCAN_TYPE::OR },
 		{ "if", TUCAN_TYPE::IF },
 		{ "while", TUCAN_TYPE::WHILE },
-		{ "define", TUCAN_TYPE::DEF },
-		{ "implement", TUCAN_TYPE::IMP },
+		{ "def", TUCAN_TYPE::DEF },
+		{ "imp", TUCAN_TYPE::IMP },
 		{ "for", TUCAN_TYPE::FOR },
 		{ "in", TUCAN_TYPE::INSIDE },
 		{ "break", TUCAN_TYPE::BREAK },
@@ -72,7 +72,6 @@ namespace tucan_script
 
 			if (std::isspace(tokenChar))
 			{
-
 				if (tokenString.size() > 0)
 					tokenList.push_back(parseToken(tokenString));
 
@@ -126,7 +125,21 @@ namespace tucan_script
 				continue;
 			}
 
-			tokenString += tokenChar;
+			if (tokenChar == QUOTE_CHAR)
+			{
+				i++;
+				while (src[i] != QUOTE_CHAR)
+				{
+					tokenString += src[i];
+					i++;
+				}
+				tokenList.push_back(std::make_unique<tucan_const>(tokenString));
+				tokenString.clear();
+				continue;
+			}
+
+			if (!std::iscntrl(static_cast<unsigned char>(tokenChar)))
+				tokenString += tokenChar;
 		}
 
 		if (tokenString.size() > 0)

@@ -5,7 +5,7 @@
 
 namespace tucan_script
 {
-	class tucan_module : public tucan_executable, public tucan_returnable
+	class tucan_module : public tucan_executable, public tucan_returnable, public std::enable_shared_from_this<tucan_module>
 	{
 	private:
 		std::unordered_map<std::string, std::shared_ptr<tucan_operable>> m_variables;
@@ -14,9 +14,9 @@ namespace tucan_script
 
 		void process_container(
 			std::vector<std::shared_ptr<tucan_entity>>& tokens,
-			tucan_executable_container* container,
-			tucan_returnable* lastReturnable,
-			tucan_loop* lastLoop);
+			std::shared_ptr<tucan_executable_container> container,
+			std::shared_ptr<tucan_returnable> lastReturnable,
+			std::shared_ptr<tucan_loop> lastLoop);
 
 		std::vector<std::shared_ptr<tucan_entity>> collect_internal_tokens(
 			std::vector<std::shared_ptr<tucan_entity>>& tokens,
@@ -24,20 +24,22 @@ namespace tucan_script
 			size_t& out_index);
 
 		std::shared_ptr<tucan_expression> process_expression(
-			tucan_executable_container* parent,
+			std::shared_ptr<tucan_executable_container> parent,
 			std::vector<std::shared_ptr<tucan_entity>>& tokens,
 			size_t index,
 			size_t& out_index);
 
-		std::shared_ptr<tucan_operable> process_variable(const std::string& name, tucan_executable_container* parent);
+		std::shared_ptr<tucan_operable> process_variable(const std::string& name, std::shared_ptr<tucan_executable_container> parent);
 
 		std::shared_ptr<tucan_function_call> process_function_call(
-			tucan_executable_container* parent,
-			tucan_function* function,
+			std::shared_ptr<tucan_executable_container> parent,
+			std::shared_ptr<tucan_function>& function,
 			std::vector<std::shared_ptr<tucan_entity>>& tokens,
 			size_t& index);
 
 	public:
+		tucan_module();
+
 		void load_from_source(const std::string& src);
 
 		std::shared_ptr<tucan_operable> tryGetVariable(const std::string& name);

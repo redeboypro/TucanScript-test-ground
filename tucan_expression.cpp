@@ -231,7 +231,7 @@ namespace tucan_script
 	void tucan_expression::reset()
 	{
 		for (auto& token : m_tokens)
-			if (auto resetable = dynamic_cast<tucan_resetable*>(token.get()))
+			if (auto resetable = std::dynamic_pointer_cast<tucan_resetable>(token))
 				resetable->reset();
 	}
 }

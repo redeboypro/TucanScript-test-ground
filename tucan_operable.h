@@ -82,7 +82,7 @@ namespace tucan_script
 		void disjunction(bool rValue);
 		void disjunction(const tucan_operable& rValue);
 
-		std::shared_ptr<tucan_operable> &operator[](const size_t& index);
+		tucan_operable& getElement(const size_t& index);
 		void setElement(const size_t& index, const tucan_operable& value);
 
 		std::string toString() const;

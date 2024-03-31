@@ -19,9 +19,7 @@ int main()
 
     auto mod = std::make_shared<tucan_script::tucan_module>();
 	mod->load_from_source(src);
-
 	mod->execute();
-	std::cout << mod->tryGetVariable("x")->getIntValue();
 
 	return 0;
 }

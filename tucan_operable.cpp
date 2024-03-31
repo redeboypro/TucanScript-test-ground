@@ -362,9 +362,9 @@ namespace tucan_script
 		disjunction(rValue.toBoolean());
 	}
 
-	std::shared_ptr<tucan_operable> &tucan_operable::operator[](const size_t& index)
+	tucan_operable& tucan_operable::getElement(const size_t& index)
 	{
-		return m_arrayValues[index];
+		return *m_arrayValues[index];
 	}
 
 	void tucan_operable::setElement(const size_t& index, const tucan_operable& value)

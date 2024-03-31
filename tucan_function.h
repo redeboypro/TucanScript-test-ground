@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <vector>
 #include <unordered_map>
 #include "tucan_expression.h"
@@ -31,7 +32,7 @@ namespace tucan_script
 
 		void setArg(size_t index, std::shared_ptr<tucan_operable>& operable);
 
-		void append(std::shared_ptr<tucan_executable>& executable);
+		void append(std::shared_ptr<tucan_executable> executable);
 		void append(const std::string& name, bool reference);
 
 		void execute() override;
@@ -51,6 +52,21 @@ namespace tucan_script
 
 		void append(std::shared_ptr<tucan_operable> arg);
 		std::shared_ptr<tucan_operable> invoke();
+	};
+
+	class tucan_external_executable : public tucan_executable
+	{
+	private:
+		std::shared_ptr<tucan_function> m_function;
+
+	public:
+		tucan_external_executable(std::shared_ptr<tucan_function>& function);
+
+		std::function<void(tucan_function&)> del_action;
+
+		void execute() override;
+
+		void reset() override;
 	};
 }
 

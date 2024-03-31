@@ -47,10 +47,10 @@ namespace tucan_script
 		m_array->execute();
 		for (size_t index = 0; index < m_array->length(); index++)
 		{
-			auto& element = (*m_array)[index];
+			auto& element = (*m_array).getElement(index);
 
 			for (auto& operable : m_variables)
-				operable->set(*element);
+				operable->set(element);
 
 			for (auto& executable : executables)
 			{
