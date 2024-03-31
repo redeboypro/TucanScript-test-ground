@@ -317,6 +317,8 @@ namespace tucan_script
 				setFunction(name, function);
 			};
 
+
+		// Input / Output
 		sub_del_fun("print", [](tucan_function& function) 
 			{
 				for (size_t index = 0; index < function.involvedArgumentCount; index++)
@@ -340,6 +342,7 @@ namespace tucan_script
 				function.set(inputString);
 			});
 
+		// Casting
 		sub_del_fun("string", [](tucan_function& function)
 			{
 				function.set(function.getArgById(0)->toString());
@@ -360,17 +363,85 @@ namespace tucan_script
 				function.set(function.getArgById(0)->toBoolean());
 			});
 
+		// Math
+		sub_del_fun("sin", [](tucan_function& function)
+			{
+				function.set(std::sin(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("cos", [](tucan_function& function)
+			{
+				function.set(std::cos(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("tan", [](tucan_function& function)
+			{
+				function.set(std::tan(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("asin", [](tucan_function& function)
+			{
+				function.set(std::asin(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("acos", [](tucan_function& function)
+			{
+				function.set(std::acos(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("atan", [](tucan_function& function)
+			{
+				function.set(std::atan(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("atan2", [](tucan_function& function)
+			{
+				function.set(std::atan2(
+					function.getArgById(0)->toFloat(),
+					function.getArgById(1)->toFloat()));
+			});
+
+		sub_del_fun("pow", [](tucan_function& function)
+			{
+				function.set(std::pow(
+					function.getArgById(0)->toFloat(),
+					function.getArgById(1)->toFloat()));
+			});
+
+		sub_del_fun("log", [](tucan_function& function)
+			{
+				function.set(std::log(function.getArgById(0)->toFloat()));
+			});
+
+		sub_del_fun("log10", [](tucan_function& function)
+			{
+				function.set(std::log(function.getArgById(0)->toFloat()));
+			});
+
+
+		// Containers
 		sub_del_fun("vector", [](tucan_function& function)
 			{
 				for (size_t index = 0; index < function.involvedArgumentCount; index++)
 					function.setElement(index, *function.getArgById(index));
 			});
 
+		sub_del_fun("len", [](tucan_function& function)
+			{
+				function.set(function.getArgById(0)->length());
+			});
+
 		sub_del_fun("get", [](tucan_function& function)
 			{
 				auto vector = function.getArgById(0);
 				auto index = function.getArgById(1);
-				function.set(vector->getElement(index->toInt()));
+
+				TUCAN_TYPE type = vector->getType();
+
+				if (type == TUCAN_TYPE::ARRAY)
+					function.set(vector->getElement(index->toInt()));
+				else if (type == TUCAN_TYPE::STRING)
+					function.set(std::string(1, vector->getStringValue()[index->toInt()]));
 			});
 
 		m_functions["get"]->append("in_vector", true);
@@ -384,6 +455,28 @@ namespace tucan_script
 			});
 
 		m_functions["set"]->append("in_vector", true);
+
+		// String
+		setVariable("str_npos", std::make_shared<tucan_const>(static_cast<long long>(std::string::npos)));
+
+		sub_del_fun("substr", [](tucan_function& function)
+			{
+				auto str = function.getArgById(0);
+				auto pos = function.getArgById(1);
+				auto len = function.getArgById(2);
+
+				function.set(str->toString().substr(pos->toInt(), len->toInt()));
+			});
+
+		m_functions["substr"]->append("str", true);
+
+		sub_del_fun("str_find", [](tucan_function& function)
+			{
+				auto str = function.getArgById(0);
+				auto des = function.getArgById(1);
+
+				function.set(static_cast<long long>(str->toString().find(des->toString())));
+			});
 	}
 
 	void tucan_module::load_from_source(const std::string& src)

@@ -23,7 +23,7 @@ namespace tucan_script
 		tucan_operable(const TUCAN_TYPE& type);
 		~tucan_operable() = default;
 
-		size_t length() const;
+		long long length() const;
 
 		const std::string& getStringValue() const;
 		long long getIntValue() const;

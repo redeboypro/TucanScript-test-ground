@@ -12,9 +12,17 @@ namespace tucan_script
 		setType(type);
 	}
 
-	size_t tucan_operable::length() const
+	long long tucan_operable::length() const
 	{
-		return m_arrayValues.size();
+		switch (getType())
+		{
+		case TUCAN_TYPE::ARRAY:
+			return m_arrayValues.size();
+		case TUCAN_TYPE::STRING:
+			return m_stringValue.length();
+		default:
+			return 0;
+		}
 	}
 
 	const std::string& tucan_operable::getStringValue() const
