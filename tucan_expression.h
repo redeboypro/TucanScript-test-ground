@@ -2,6 +2,7 @@
 #include "token_util.h"
 #include <stack>
 #include <deque>
+#include "tucan_function.h"
 
 namespace tucan_script
 {

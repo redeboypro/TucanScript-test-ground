@@ -135,7 +135,9 @@
     <ClCompile Include="tucan_entity.cpp" />
     <ClCompile Include="tucan_expression.cpp" />
     <ClCompile Include="tucan_function.cpp" />
+    <ClCompile Include="tucan_module.cpp" />
     <ClCompile Include="tucan_operable.cpp" />
+    <ClCompile Include="tucan_statement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tester.h" />
@@ -144,7 +146,9 @@
     <ClInclude Include="tucan_entity.h" />
     <ClInclude Include="tucan_expression.h" />
     <ClInclude Include="tucan_function.h" />
+    <ClInclude Include="tucan_module.h" />
     <ClInclude Include="tucan_operable.h" />
+    <ClInclude Include="tucan_statement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

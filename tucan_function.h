@@ -16,18 +16,20 @@ namespace tucan_script
 	class tucan_function : public tucan_operable, public tucan_executable, public tucan_returnable
 	{
 	private:
-		std::unordered_map<std::string, tucan_function_argument*> m_arguments;
+		std::unordered_map<std::string, std::shared_ptr<tucan_function_argument>> m_arguments;
 		bool m_running;
 
 	public:
-		~tucan_function();
+		~tucan_function() = default;
 
-		int involvedArgumentCount;
+		long long involvedArgumentCount;
 
-		tucan_function_argument& getArgById(int index);
-		tucan_function_argument& getArgByName(const std::string& name);
+		size_t getArgumentCount() const;
 
-		void setArg(int index, std::shared_ptr<tucan_operable>& operable);
+		std::shared_ptr<tucan_function_argument> getArgById(int index);
+		std::shared_ptr<tucan_function_argument> getArgByName(const std::string& name);
+
+		void setArg(size_t index, std::shared_ptr<tucan_operable>& operable);
 
 		void append(std::shared_ptr<tucan_executable>& executable);
 		void append(const std::string& name, bool reference);
@@ -37,18 +39,18 @@ namespace tucan_script
 		void reset() override;
 	};
 
-	class tucan_function_call : tucan_entity
+	class tucan_function_call : public tucan_entity
 	{
 	private:
 		std::vector<std::shared_ptr<tucan_operable>> m_arguments;
 		std::shared_ptr<tucan_function> m_function;
-		tucan_operable m_result;
+		std::shared_ptr<tucan_operable> m_result;
 
 	public:
-		tucan_function_call(std::shared_ptr<tucan_function>& function);
+		tucan_function_call(std::shared_ptr<tucan_function> function);
 
-		void append(std::shared_ptr<tucan_function>& arg);
-		tucan_operable& invoke();
+		void append(std::shared_ptr<tucan_operable> arg);
+		std::shared_ptr<tucan_operable> invoke();
 	};
 }
 

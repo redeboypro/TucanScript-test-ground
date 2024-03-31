@@ -72,12 +72,16 @@ namespace tucan_script
 	class tucan_resetable
 	{
 	public:
+		virtual ~tucan_resetable() = default;
+
 		virtual void reset() = 0;
 	};
 
 	class tucan_executable : public tucan_resetable
 	{
 	public:
+		virtual ~tucan_executable() = default;
+
 		virtual void execute() = 0;
 	};
 
@@ -85,6 +89,8 @@ namespace tucan_script
 	{
 	public:
 		std::vector<std::shared_ptr<tucan_executable>> executables;
+
+		virtual ~tucan_executable_container() = default;
 	};
 
 	class tucan_returnable : public tucan_executable_container
@@ -101,6 +107,7 @@ namespace tucan_script
 	public:
 		tucan_break_point(std::shared_ptr<tucan_loop> loop);
 		void execute() override;
+		void reset() override {}
 	};
 
 	class tucan_continue_point : public tucan_executable
@@ -111,6 +118,7 @@ namespace tucan_script
 	public:
 		tucan_continue_point(std::shared_ptr<tucan_loop> loop);
 		void execute() override;
+		void reset() override {}
 	};
 
 	class tucan_return_point : public tucan_executable
@@ -121,13 +129,14 @@ namespace tucan_script
 	public:
 		tucan_return_point(std::shared_ptr<tucan_returnable> returnable);
 		void execute() override;
+		void reset() override {}
 	};
 
 	class tucan_statement : public tucan_executable, public tucan_executable_container
 	{
 	public:
 		void reset() override;
-		void append(std::shared_ptr<tucan_executable> executable);
+		void append(std::shared_ptr<tucan_executable>& executable);
 
 		virtual void execute() override = 0;
 	};
@@ -156,5 +165,7 @@ namespace tucan_script
 	public:
 		tucan_undefined(const std::string& content);
 		~tucan_undefined() = default;
+
+		std::string getContent() const;
 	};
 }

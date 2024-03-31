@@ -61,7 +61,9 @@ namespace tucan_script
 				break;
 			case TUCAN_TYPE::CALL:
 			{
-				//auto callToken = static_cast<
+				auto callToken = std::dynamic_pointer_cast<tucan_function_call>(token);
+				result.push_back(callToken->invoke());
+				break;
 			}
 			default:
 			{
@@ -92,7 +94,7 @@ namespace tucan_script
 						}
 
 						if (tokenStack.size() == 0)
-							throw std::invalid_argument("Mismatched parentheses!");
+							std::cerr << "Mismatched parentheses!" << std::endl;
 
 						tokenStack.pop();
 						break;
@@ -109,7 +111,7 @@ namespace tucan_script
 
 			if (topType == TUCAN_TYPE::LPAREN ||
 				topType == TUCAN_TYPE::RPAREN)
-				throw std::invalid_argument("Mismatched parentheses!");
+				std::cerr << "Mismatched parentheses!" << std::endl;
 
 			result.push_back(top);
 			tokenStack.pop();
@@ -219,7 +221,7 @@ namespace tucan_script
 		}
 
 		if (valueStack.size() != 1)
-			throw std::invalid_argument("Invalid expression");
+			std::cerr << "Invalid expression" << std::endl;
 
 		std::shared_ptr<tucan_entity> topValue = valueStack.top();
 		set(*std::dynamic_pointer_cast<tucan_operable>(topValue));

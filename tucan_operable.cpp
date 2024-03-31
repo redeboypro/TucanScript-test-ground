@@ -511,6 +511,6 @@ namespace tucan_script
 
 	void tucan_operable_clone::apply()
 	{
-		m_source->set(this);
+		m_source->set(*this);
 	}
 }

@@ -1,20 +1,27 @@
-﻿#include <iostream>
+﻿#include <fstream>
+#include <iterator>
+#include <iostream>
 #include <vector>
-#include "tucan_expression.h"
+#include "tucan_module.h"
 
 int main()
 {
-	std::shared_ptr<tucan_script::tucan_expression> executable = std::make_shared<tucan_script::tucan_expression>();
+    std::ifstream file("C:\\DotNetProjects\\Tester\\x64\\Debug\\main.txt");
 
-	auto tokens = tucan_script::tokenize("2 + 2 * 2");
+    if (!file.is_open()) {
+        std::cerr << "Error opening file." << std::endl;
+        return 1;
+    }
 
-	for (auto& token : tokens)
-		if (auto operable = dynamic_cast<tucan_script::tucan_operable*>(token.get()))
-			executable->appendOperable(std::make_shared<tucan_script::tucan_operable>(*operable));
-		else
-			executable->append(token);
+    std::string src((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-	executable->execute();
+    file.close();
 
-	std::cout << executable->getIntValue();
+    auto mod = std::make_shared<tucan_script::tucan_module>();
+	mod->load_from_source(src);
+
+	mod->execute();
+	std::cout << mod->tryGetVariable("x")->getIntValue();
+
+	return 0;
 }

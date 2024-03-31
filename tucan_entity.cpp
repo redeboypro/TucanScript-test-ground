@@ -16,7 +16,15 @@ namespace tucan_script
 		m_type = type;
 	}
 
-	tucan_undefined::tucan_undefined(const std::string& content) : m_content(content) {}
+	tucan_undefined::tucan_undefined(const std::string& content) : m_content(content) 
+	{
+		setType(TUCAN_TYPE::UNDEFINED);
+	}
+
+	std::string tucan_undefined::getContent() const
+	{
+		return m_content;
+	}
 
 	tucan_break_point::tucan_break_point(std::shared_ptr<tucan_loop> loop) : m_loop(loop) {}
 	
@@ -45,7 +53,7 @@ namespace tucan_script
 			executable->reset();
 	}
 
-	void tucan_statement::append(std::shared_ptr<tucan_executable> executable)
+	void tucan_statement::append(std::shared_ptr<tucan_executable>& executable)
 	{
 		executables.push_back(executable);
 	}
