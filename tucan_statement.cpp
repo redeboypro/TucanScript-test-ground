@@ -9,7 +9,7 @@ namespace tucan_script
 	{
 		m_running = true;
 		m_condition->execute();
-		while (m_condition->getBoolValue()) 
+		while (m_condition->toBoolean())
 		{
 			for (auto& executable : executables) 
 			{
@@ -84,7 +84,7 @@ namespace tucan_script
 	{
 		m_condition->execute();
 
-		if (!m_condition->getBoolValue()) return;
+		if (!m_condition->toBoolean()) return;
 
 		for (auto& executable : executables)
 			executable->execute();
